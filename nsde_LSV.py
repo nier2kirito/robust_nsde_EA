@@ -108,15 +108,21 @@ class Net_LSV(nn.Module):
         
         return price_vanilla_cv, var_price_vanilla_cv, exotic_option_price, exotic_option_price.mean(), exotic_option_price.var(), error
 
-
-
+#censé etre mieux pour relu et silu 
+def init_weights_lu(m):
+    if isinstance(m, nn.Linear):
+        nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='linear')  
+        if m.bias is not None:
+            m.bias.data.zero_()
+#censé etre mieux pour tanh
 def init_weights(m):
     if isinstance(m, nn.Linear):
         nn.init.xavier_normal_(m.weight.data, gain=1.5)
 
 
 
-def train_nsde(model, z_test, config,loss_calibration='MSE'):
+def train_nsde(model, z_test, config,loss_calibration='MSE',init='xavier'): #METTRE loss_calibration='Wass' pour loss de Wasserstein (juste la calibration pas le hedging) et init='kaiming' pour init a kiaming, sinon parametre par defaut sont comme avant les changements 
+        
     
     if loss_calibration=='Wass':
         loss_fn = SamplesLoss("sinkhorn", p=2, blur=0.05)
@@ -125,7 +131,10 @@ def train_nsde(model, z_test, config,loss_calibration='MSE'):
     
     n_maturities = len(maturities)
     model = model.to(device)
-    model.apply(init_weights)
+    if init=='kaiming':
+        model.apply(init_weights_lu)
+    else:
+        model.apply(init_weights)
     params_SDE = list(model.diffusion.parameters())+list(model.driftV.parameters()) + list(model.diffusionV.parameters()) + [model.rho, model.v0]
     
 
@@ -312,6 +321,6 @@ if __name__ == '__main__':
     
 
     model = train_nsde(model, z_test, CONFIG)
-    model = train_nsde(model, z_test, CONFIG,loss_calibration='Wass')
+    model = train_nsde(model, z_test, CONFIG,loss_calibration='Wass') #loss_calibration='Wass' sinon par defaut MSE #init='kaiming' sinon par defaut xavier
 
 
