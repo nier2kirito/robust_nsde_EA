@@ -1,0 +1,7 @@
+Vanilla Option Testing Results:
+MSE: 1.9717768736882135e-05
+Relative Error: 0.3360489010810852
+
+Exotic Option Testing Results:
+Mean Price: 0.03101632185280323
+Price Variance: 0.0003467199276201427

@@ -10,6 +10,8 @@ class Net_FFN(nn.Module):
         
         if activation=="relu":
             self.activation = nn.ReLU()
+        elif activation == "silu":
+            self.activation = nn.SiLU()
         elif activation=="tanh":
             self.activation = nn.Tanh()
         else:
@@ -84,4 +86,3 @@ class Net_timegrid(nn.Module):
             for idx in args:
                 for p in self.net_t[idx].parameters():
                     p.requires_grad=True
-
